@@ -1,12 +1,32 @@
 const mongoose = require('mongoose');
 
-const CoursSchema = new mongoose.Schema({
-    titre: { type: String, required: true },
-    description: { type: String, required: true },
-    niveau: { type: String, required: true },
-    duree: { type: Number, required: true }, // Durée du cours en minutes par exemple
-    videos: [String], // Tableau des liens vers les vidéos
-    pdfs: [String] // Tableau des liens vers les fichiers PDF
-});
+const coursSchema = new mongoose.Schema({
+  titre: {
+    type: String,
+    required: true,
+ 
+  },
+  niveau: {
+    type: String,
+    required: true,
+   
+  },
+  matiere: {
+    type: String,
+    required: true,
 
-module.exports = mongoose.model('Cours', CoursSchema);
+  },
+ duree: {
+    type: String,
+    required: true,
+  
+  },
+  video: {
+    type: String,
+    required: true
+  }
+}, { collection: 'cours' });
+
+const CoursModel = mongoose.model('cours', coursSchema);
+
+module.exports = CoursModel;
