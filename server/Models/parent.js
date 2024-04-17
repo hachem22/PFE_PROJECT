@@ -1,17 +1,16 @@
 const mongoose = require('mongoose');
-
-const parentSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+const bcrypt = require('bcrypt');
+const parentSchema = new Schema({
   nom:{
     type: String,
     required: true,
-    trim:true,
     minlength:2,
     maxlength:20,
   },
   prenom: {
     type: String,
     required: true,
-    trim:true,
     minlength:2,
     maxlength:20,
   },
@@ -30,14 +29,12 @@ const parentSchema = new mongoose.Schema({
   nomeleve:{
     type: String,
     required: true,
-    trim:true,
     minlength:2,
     maxlength:20,
 },
   prenomeleve:{
     type: String,
     required: true,
-    trim:true,
     minlength:2,
     maxlength:20,
 },
@@ -45,7 +42,6 @@ const parentSchema = new mongoose.Schema({
   email:  {
     type: String,
     required: true,
-    trim:true,
     minlength:5,
     maxlength:50,
     unique: true,
@@ -54,13 +50,23 @@ const parentSchema = new mongoose.Schema({
   password: {
     type: String,
     require:true,
-    trim:true,
     minlength:8,
   
 
 },
-}, { collection: 'parent' }); // Spécifie le nom de la collection
 
+}, { collection: 'parent' }); // Spécifie le nom de la collection
+parentSchema.pre('save', async function (next) {
+  const parent = this;
+  if (!parent.isModified('password')) return next();
+  try {
+      const hashedPassword = await bcrypt.hash(parent.password, 10);
+      parent.password = hashedPassword;
+      next();
+  } catch (error) {
+      return next(error);
+  }
+});
 const ParentModel = mongoose.model('parent', parentSchema);
 
 module.exports = ParentModel;

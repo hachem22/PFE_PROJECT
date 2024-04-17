@@ -4,24 +4,20 @@ const coursSchema = new mongoose.Schema({
   titre: {
     type: String,
     required: true,
- 
   },
   niveau: {
     type: String,
     required: true,
-   
   },
   matiere: {
     type: String,
     required: true,
-
   },
- duree: {
-    type: String,
+  numeroVideo: { 
+    type: Number, 
     required: true,
-  
   },
-  video: {
+  videoUrl: {
     type: String,
     required: true
   }

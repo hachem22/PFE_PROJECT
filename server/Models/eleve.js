@@ -1,64 +1,53 @@
 const mongoose = require('mongoose');
 
 const eleveSchema = new mongoose.Schema({
-  nom:{
+  nom: {
     type: String,
-    required: true,
-    trim:true,
-    minlength:2,
-    maxlength:20,
-   
-
+    required: true
   },
- 
   prenom: {
     type: String,
-    required: true,
-    trim:true,
-    minlength:2,
-    maxlength:20,
-    
+    required: true
   },
-  
-numero: {
-  type: Number,
-  required: true,
-  minlength:8,
-  maxlength:8,
-  unique: true
-},
-datenai: {
-  type: Date,
-  required: true,
-},
-gouvernonat: {
-  type: String,
-  required: true,
- 
-},
-classe: {
-  type: String,
-  required: true,
-},
-
-  email:  {
+  photo: {
+    type: String,
+    required: true
+  },
+  numero: {
     type: String,
     required: true,
-    minlength:5,
-    maxlength:50,
-    unique: true,
-   
-},
+    unique: true
+
+  },
+  datenai: {
+    type: Date,
+    required: true
+  },
+  gouvernorat: {
+    type: String,
+    required: true
+  },
+  classe: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
   password: {
     type: String,
-    require:true,
-  
-    minlength:8,
-  
+    required: true
+  },
+  matricule: {
+    type: String,
+    required: true,
+    unique: true
 
-},
-}, { collection: 'eleve' }); // Spécifie le nom de la collection
+  }
+});
 
-const EleveModel = mongoose.model('eleve', eleveSchema);
+const Eleve = mongoose.model('Eleve', eleveSchema);
 
-module.exports = EleveModel;
+module.exports = Eleve;

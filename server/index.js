@@ -5,13 +5,16 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const cookieParser = require("cookie-parser");
 
 // Créer une instance de l'application Express
 const app = express();
 
-// Configurer les middlewares et les routes
+
+// Configurer les middlewares
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser());
 
 // Définir les routes
 const userRoute = require('./Routes/userRoute.js');
@@ -25,8 +28,8 @@ app.use('/parent', parentRoute);*/
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+      //useNewUrlParser: true,
+      //useUnifiedTopology: true,
     });
     console.log('Connexion à la base de données réussie');
   } catch (err) {
