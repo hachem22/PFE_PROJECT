@@ -24,6 +24,7 @@ const parentSchema = new Schema({
     type: Number,
     required: true,
     minlength:2,
+    unique: true,
     maxlength:10
   },
   nomeleve:{
@@ -54,6 +55,7 @@ const parentSchema = new Schema({
   
 
 },
+
 
 }, { collection: 'parent' }); // Spécifie le nom de la collection
 parentSchema.pre('save', async function (next) {

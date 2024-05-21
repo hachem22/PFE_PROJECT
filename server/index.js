@@ -1,7 +1,7 @@
 // Importer le module dotenv et charger les variables d'environnement à partir du fichier .env
 require('dotenv').config();
 
-// Importer les modules nécessaires
+const multer = require('multer');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -23,8 +23,16 @@ app.use('/', userRoute);
 app.use('/', eleveRoute);
 const parentRoute = require('./Routes/parentRoute.js');
 app.use('/parent', parentRoute);*/
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'cour_pdf/'); // Le dossier "cour_pdf" dans le dossier "server"
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname); // Utilisez le nom original du fichier
+  }
+});
 
-// Connexion à la base de données en utilisant la variable d'environnement MONGO_URI
+// Configurer multer avec la configuration de stockage
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, {

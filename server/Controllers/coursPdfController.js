@@ -1,31 +1,37 @@
 const CoursPDF = require('../Models/CoursPDF');
 
-exports.ajouterCoursPDF = async (req, res) => {
-    try {
-        // Extraction des données du corps de la requête
-        const { titre, niveau, matiere } = req.body;
+exports.ajouterCours = async (req, res) => {
+  try {
+    const { titre, niveau, matiere } = req.body;
+    const fichierPdf = req.file.filename;
 
-        // Vérification des données obligatoires
-        if (!titre || !niveau || !matiere || !req.file) {
-            return res.status(400).json({ message: 'Tous les champs sont obligatoires' });
-        }
+    // Créer un nouveau cours
+    const nouveauCours = new CoursPDF({ titre, niveau, matiere, fichierPdf });
+    await nouveauCours.save();
 
-        // Création d'une instance du modèle de cours PDF
-        const cours = new CoursPDF({
-            titre,
-            niveau,
-            matiere,
-            pdfFile: req.file.buffer
-        });
-
-        // Enregistrement du cours PDF dans la base de données
-        await cours.save();
-
-        // En cas de succès, renvoyer une réponse avec un message approprié
-        return res.status(200).json({ message: 'Cours PDF ajouté avec succès' });
-    } catch (error) {
-        // Gestion des erreurs
-        console.error('Erreur lors de l\'ajout du cours PDF :', error);
-        return res.status(500).json({ error: 'Erreur lors de l\'ajout du cours PDF' });
-    }
+    res.status(201).json({ message: "Cours ajouté avec succès." });
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout du cours :', error);
+    res.status(500).json({ message: "Une erreur s'est produite lors de l'ajout du cours." });
+  }
 };
+
+exports.getAllCours = async (req, res) => {
+  try {
+    const coursPDF = await CoursPDF.find();
+    res.status(200).json(coursPDF);
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la liste des cours :', error);
+    res.status(500).json({ message: "Une erreur s'est produite lors de la récupération de la liste des cours." });
+  }
+};
+  exports.getcourparniveau = async (req, res) => {
+    const niveau = req.params.niveau;
+    try {
+      const cours = await CoursPDF.find({ niveau: niveau });
+      res.json(cours);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des cours :', error);
+      res.status(500).json({ message: "Une erreur s'est produite lors de la récupération des cours." });
+    }
+  };

@@ -17,7 +17,6 @@ const eleveSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true
-
   },
   datenai: {
     type: Date,
@@ -44,8 +43,9 @@ const eleveSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true
-
-  }
+  },
+  // Champs pour les vidéos regardées par matière
+  
 });
 
 const Eleve = mongoose.model('Eleve', eleveSchema);

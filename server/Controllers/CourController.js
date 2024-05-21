@@ -16,6 +16,8 @@ exports.AjouterCour = async (req, res) => {
   try {
     const coursObj = {
       titre: req.body.titre,
+     photo: req.body.photo,
+
       niveau: req.body.niveau,
       matiere: req.body.matiere,
       numeroVideo: req.body.numeroVideo, // Utilisez le numéro de vidéo fourni dans la requête

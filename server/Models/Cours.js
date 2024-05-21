@@ -5,6 +5,10 @@ const coursSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  photo: {
+    type: String,
+    required: true
+  },
   niveau: {
     type: String,
     required: true,

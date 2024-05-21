@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const ParentModel = require('../Models/parent');
+const nodemailer = require('nodemailer');
 
 exports.AjouterParent = async (req, res) => {
     const { nom, prenom, numero, matriculeeleve, nomeleve, prenomeleve, email, password } = req.body;
@@ -20,7 +21,8 @@ exports.AjouterParent = async (req, res) => {
             nomeleve,
             prenomeleve,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            photo,
         });
 
         await newParent.save();
@@ -149,4 +151,69 @@ exports.allparents = async (req, res) => {
             res.status(500).json({ message: 'Une erreur s\'est produite lors de la suppression du parent.' });
         }
     };
-    
+    exports.sendPasswordByEmailParent = async (req, res) => {
+        const { email } = req.body;
+      
+        if (!email) {
+          return res.status(400).json("Veuillez fournir une adresse email");
+        }
+      
+        try {
+          const parent = await ParentModel.findOne({ email: email });
+      
+          if (parent) {
+            // Configurez Nodemailer pour utiliser votre service d'envoi d'e-mails
+            let transporter = nodemailer.createTransport({
+              service: 'gmail',
+              auth: {
+                user: 'hachemmatboui20@gmail.com',
+                pass: 'llag csgb buom sfmv'
+              },
+              tls: {
+                rejectUnauthorized: false
+              }
+            });
+      
+            let mailOptions = {
+              from: 'hachemmatboui20@gmail.com',
+              to: email,
+              subject: 'Créez votre nouveau mot de passe à partir de ce lien',
+              text: 'Créez votre nouveau mot de passe à partir de ce lien => http://localhost:3001/moudifier_pawwsord_parent'
+            };
+      
+            transporter.sendMail(mailOptions, function (error, info) {
+              if (error) {
+                console.error(error);
+                res.status(500).json("Une erreur s'est produite lors de l'envoi de l'e-mail");
+              } else {
+                console.log('Email sent: ' + info.response);
+                res.json("EmailSent");
+              }
+            });
+          } else {
+            res.json("EmailNotFound");
+          }
+        } catch (error) {
+          console.error(error);
+          res.status(500).json("Une erreur s'est produite");
+        }
+      };
+      exports.updatePasswordByEmailParent = async (req, res) => {
+        const email = req.params.email;
+        const { password } = req.body;
+      
+        try {
+          const hashedPassword = await bcrypt.hash(password, 10);
+      
+            const parent = await ParentModel.findOneAndUpdate({ email: email }, { password: hashedPassword });
+      
+            if (parent) {
+                res.status(200).json("Mot de passe mis à jour avec succès");
+            } else {
+                res.status(404).json("Aucun utilisateur trouvé avec cet e-mail");
+            }
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour du mot de passe :", error);
+            res.status(500).json("Une erreur s'est produite lors de la mise à jour du mot de passe");
+        }
+      };

@@ -2,7 +2,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Eleve = require('../Models/Eleve');
 const nodemailer = require('nodemailer');
-
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
@@ -63,8 +62,8 @@ exports.getEleveById = async (req, res) => {
       return res.status(404).json({ error: "Aucun élève trouvé avec cet ID." });
     }
     // Renvoyer les informations de l'élève avec l'URL de l'image
-    const { nom, prenom, photo, datenai, numero, gouvernorat, classe, email, matricule } = eleve;
-    return res.status(200).json({ nom, prenom, photo, datenai, numero, gouvernorat, classe, email, matricule });
+    const { nom, prenom, photo, datenai, numero, gouvernorat, classe, email, matricule,progressionmath,progressionphysique,progressiontechnique,progressioninformatique,progressionarabe,progressionfrancais,progressionanglais } = eleve;
+    return res.status(200).json({ nom, prenom, photo, datenai, numero, gouvernorat, classe, email, matricule,progressionmath,progressionphysique,progressiontechnique,progressioninformatique ,progressionarabe,progressionfrancais,progressionanglais});
   } catch (error) {
     console.error('Erreur lors de la récupération des informations de l\'élève :', error);
     return res.status(500).json({ error: "Une erreur s'est produite lors de la récupération des informations de l'élève." });
@@ -72,7 +71,7 @@ exports.getEleveById = async (req, res) => {
 };
 
 exports.updateProfileById = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params;    // il faut ici utilise req auth id il faut toujour crypter et passe par header comme best practice 
   const updatedData = req.body; // Les données à mettre à jour
 
   try {
@@ -114,10 +113,29 @@ exports.loginEleve = async (req, res) => {
     const token = jwt.sign({ id: existingEleve._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
     // Renvoyer le jeton JWT et l'ID de l'élève dans la réponse
-    return res.status(200).json({ message: "Connexion réussie!", token, id: existingEleve._id });
+    return res.status(200).json({ message: "Connexion réussie!", token, id: existingEleve._id, matricule: existingEleve.matricule  });
   } catch (error) {
     console.error('Erreur lors de la connexion de l\'élève :', error);
     return res.status(500).json({ error: "Une erreur s'est produite lors de la connexion." });
+  }
+};
+
+
+exports.checkEmail = async (req, res) => {
+  // Récupérer l'e-mail à vérifier depuis le corps de la requête
+  const { email } = req.body;
+
+  try {
+    // Vérifier si l'e-mail existe déjà dans la base de données
+    const existingEleve = await Eleve.findOne({ email });
+    if (existingEleve) {
+      return res.status(200).json({ emailExists: true });
+    } else {
+      return res.status(200).json({ emailExists: false });
+    }
+  } catch (error) {
+    console.error('Erreur lors de la vérification de l\'e-mail de l\'élève :', error);
+    return res.status(500).json({ error: "Une erreur s'est produite lors de la vérification de l'e-mail." });
   }
 };
 
@@ -173,56 +191,60 @@ exports.deleteparid = async (req, res) => {
 
 
 
+
+
 exports.sendPasswordByEmail = async (req, res) => {
-    const { email } = req.params; // Récupérez l'e-mail de l'URL
+  const { email } = req.body;
 
-    if (!email) {
-        return res.status(400).json("Veuillez fournir une adresse email");
-    }
+  if (!email) {
+    return res.status(400).json("Veuillez fournir une adresse email");
+  }
 
-    try {
-        const eleve = await Eleve.findOne({ email: email });
+  try {
+    const eleve = await Eleve.findOne({ email: email });
 
-        if (eleve) {
-          
-
-            // Configurez Nodemailer pour utiliser votre service d'envoi d'e-mails
-            let transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: 'hachemmatboui20@gmail.com',
-                    pass: 'mmqk retr hjog wnfe'
-                }
-            });
-
-          
-               let mailOptions = {
-                from: 'hachemmatboui20@gmail.com',
-                to: email,
-                subject: 'creer votre nouveau mot de pass a partir de cette lien ',
-                text : 'creer votre nouveau mot de pass a partir de cette lien => http://localhost:3001/moudifier_pawwsord_eleve'
-            };
-
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                    console.error(error);
-                    res.status(500).json("Une erreur s'est produite lors de l'envoi de l'e-mail");
-                } else {
-                    console.log('Email sent: ' + info.response);
-                    res.json("EmailSent");
-                }
-            });
-        } else {
-            res.json("EmailNotFound");
+    if (eleve) {
+      // Configurez Nodemailer pour utiliser votre service d'envoi d'e-mails
+      let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'hachemmatboui20@gmail.com',
+          pass: 'llag csgb buom sfmv'
+        },
+        tls: {
+          rejectUnauthorized: false
         }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json("Une erreur s'est produite");
+      });
+
+      let mailOptions = {
+        from: 'hachemmatboui20@gmail.com',
+        to: email,
+        subject: 'Créez votre nouveau mot de passe à partir de ce lien',
+        text: 'Créez votre nouveau mot de passe à partir de ce lien => http://localhost:3001/moudifier_pawwsord_eleve'
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.error(error);
+          res.status(500).json("Une erreur s'est produite lors de l'envoi de l'e-mail");
+        } else {
+          console.log('Email sent: ' + info.response);
+          res.json("EmailSent");
+        }
+      });
+    } else {
+      res.json("EmailNotFound");
     }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json("Une erreur s'est produite");
+  }
 };
 
 
-exports.getPasswordByEmail = async (req, res) => {
+
+
+/*exports.getPasswordByEmail = async (req, res) => {
   const { email } = req.params; // Utilisez "req.params" pour récupérer l'e-mail de l'URL
   
   if (!email) {
@@ -243,7 +265,7 @@ exports.getPasswordByEmail = async (req, res) => {
       res.status(500).json("Une erreur s'est produite");
   }
 };
-
+*/
 exports.updatePasswordByEmail = async (req, res) => {
   const email = req.params.email;
   const { password } = req.body;
@@ -264,40 +286,89 @@ exports.updatePasswordByEmail = async (req, res) => {
   }
 };
 
-/*exports.getInfoByEmail = async (req, res) => {
-  const { email } = req.params;
 
+
+exports.getvideoswatchedbyMatiere = async (req, res) => {
   try {
-    const eleve = await (require('../Models/Eleve')).findOne({ email });
-
+    const { id, matiere } = req.params;
+    const eleve = await Eleve.findById(id).populate(`watchedVideos${matiere}`);
     if (!eleve) {
-      return res.status(404).json({ message: "Aucun élève trouvé avec cet e-mail." });
+      return res.status(404).json({ message: "Élève non trouvé." });
     }
-
-    return res.status(200).json({ eleve });
+    res.status(200).json(eleve[`watchedVideos${matiere}`]);
   } catch (error) {
-    console.error("Erreur lors de la récupération des informations de l'élève :", error);
-    return res.status(500).json({ error: "Une erreur s'est produite lors de la récupération des informations de l'élève." });
-  }
-};*/
-
-
-/*exports.verifierEmail = async (req, res) => {
-  const { email } = req.params;
-
-  try {
-    // Recherche de l'élève par email
-    const existingEleve = await (require('../Models/Eleve')).findOne({ email });
-
-    // Si un élève avec cet email existe déjà
-    if (existingEleve) {
-      return res.json({ "emailExists": true });
-    } else {
-      return res.json({ "emailExists": false }); // Correction ici: enlever l'espace avant "emailExists"
-    }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Une erreur s'est produite lors de la vérification de l'e-mail." });
+    console.error("Erreur lors de la récupération des vidéos regardées :", error);
+    res.status(500).json({ message: "Une erreur s'est produite lors de la récupération des vidéos regardées." });
   }
 };
+
+exports.postvideoswatchedbyMatiere = async (req, res) => {
+  try {
+    const { id, matiere } = req.params;
+    const { videoId } = req.body;
+
+    const eleve = await Eleve.findById(id);
+    if (!eleve) {
+      return res.status(404).json({ message: "Élève non trouvé." });
+    }
+
+    eleve[`watchedVideos${matiere}`].push(videoId);
+    await eleve.save();
+
+    res.status(200).json({ message: "Vidéo regardée ajoutée avec succès." });
+  } catch (error) {
+    console.error("Erreur lors de l'enregistrement de la vidéo regardée :", error);
+    res.status(500).json({ message: "Une erreur s'est produite lors de l'enregistrement de la vidéo regardée." });
+  }
+};
+
+exports.putvideoswatchedbyMatiere = async (req, res) => {
+  try {
+    const { id, matiere } = req.params;
+    const { oldVideoId, newVideoId } = req.body;
+
+    const eleve = await Eleve.findById(id);
+    if (!eleve) {
+      return res.status(404).json({ message: "Élève non trouvé." });
+    }
+
+    const index = eleve[`watchedVideos${matiere}`].indexOf(oldVideoId);
+    if (index !== -1) {
+      eleve[`watchedVideos${matiere}`][index] = newVideoId;
+      await eleve.save();
+      res.status(200).json({ message: "Vidéo regardée mise à jour avec succès." });
+    } else {
+      return res.status(404).json({ message: "Vidéo regardée non trouvée." });
+    }
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de la vidéo regardée :", error);
+    res.status(500).json({ message: "Une erreur s'est produite lors de la mise à jour de la vidéo regardée." });
+  }
+};
+
+/*exports.putprogressioneleveparmatiere = async (req, res) => {
+  try {
+    const { eleveId } = req.params;
+    const { progressionMath, progressionPhysique, progressionTechnique, progressionInformatique, progressionFrancais, progressionAnglais, progressionArabe } = req.body;
+
+    // Vérifiez si progressionMath est défini, sinon utilisez la valeur par défaut 0
+    const updatedFields = {
+      progressionmath: progressionMath,
+      progressionphysique: progressionPhysique,
+      progressiontechnique: progressionTechnique,
+      progressioninformatique: progressionInformatique,
+      progressionfrancais: progressionFrancais,
+      progressionanglais: progressionAnglais,
+      progressionarabe: progressionArabe
+    };
+
+    const updatedEleve = await Eleve.findByIdAndUpdate(eleveId, updatedFields, { new: true });
+
+    res.status(200).json(updatedEleve);
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la progression de l\'élève :', error);
+    res.status(500).json({ message: 'Erreur lors de la mise à jour de la progression de l\'élève' });
+  }
+};
+
 */

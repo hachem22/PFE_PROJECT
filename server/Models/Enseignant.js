@@ -14,7 +14,10 @@ const EnseignantSchema = new mongoose.Schema({
     minlength:2,
     maxlength:20,
   },
-  
+  photo: {
+    type: String,
+    required: true
+  },
   specialite: {
     type: String,
     required: true,
